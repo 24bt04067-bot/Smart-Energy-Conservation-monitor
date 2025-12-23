@@ -16,31 +16,42 @@
       text-align: center;
       padding: 20px;
     }
+
     h1 {
       color: #38bdf8;
+      margin-bottom: 5px;
     }
+
+    h2 {
+      margin-top: 40px;
+      color: #eab308;
+    }
+
     .card {
       background: #1e293b;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 20px;
-      margin: 15px auto;
-      max-width: 400px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      margin: 20px auto;
+      max-width: 800px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
+
     .value {
-      font-size: 2rem;
+      font-size: 2.2rem;
       color: #22c55e;
     }
+
     iframe {
       width: 100%;
-      height: 260px;
+      height: 380px;   /* ENLARGED GRAPH */
       border: none;
-      border-radius: 8px;
-      margin-top: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
       background: #ffffff;
     }
+
     footer {
-      margin-top: 30px;
+      margin-top: 40px;
       font-size: 0.9rem;
       color: #94a3b8;
     }
@@ -54,52 +65,42 @@
 
   <!-- LIVE VALUES -->
   <div class="card">
-    <h2>Voltage</h2>
-    <div id="voltage" class="value">-- V</div>
+    <h2>Live Readings</h2>
+    <p><b>Voltage:</b> <span id="voltage" class="value">-- V</span></p>
+    <p><b>Current:</b> <span id="current" class="value">-- A</span></p>
+    <p><b>Power:</b> <span id="power" class="value">-- W</span></p>
+    <p><b>Energy:</b> <span id="energy" class="value">-- Wh</span></p>
+  </div>
+
+  <!-- INDIVIDUAL GRAPHS -->
+  <h2>📈 Individual Graphs</h2>
+
+  <div class="card">
+    <h3 style="color:#3b82f6;">Voltage vs Time</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%233b82f6&dynamic=true&results=100&type=line"></iframe>
   </div>
 
   <div class="card">
-    <h2>Current</h2>
-    <div id="current" class="value">-- A</div>
+    <h3 style="color:#ef4444;">Current vs Time</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/2?bgcolor=%23ffffff&color=%23ef4444&dynamic=true&results=100&type=line"></iframe>
   </div>
 
   <div class="card">
-    <h2>Power</h2>
-    <div id="power" class="value">-- W</div>
+    <h3 style="color:#22c55e;">Power vs Time</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/3?bgcolor=%23ffffff&color=%2322c55e&dynamic=true&results=100&type=line"></iframe>
   </div>
 
   <div class="card">
-    <h2>Energy</h2>
-    <div id="energy" class="value">-- Wh</div>
-  </div>
-
-  <!-- GRAPHS -->
-  <h2>📈 Live Graphs</h2>
-
-  <div class="card">
-    <h3>Voltage vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%23007acc&dynamic=true&results=60&type=line"></iframe>
-  </div>
-
-  <div class="card">
-    <h3>Current vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/2?bgcolor=%23ffffff&color=%23e11d48&dynamic=true&results=60&type=line"></iframe>
-  </div>
-
-  <div class="card">
-    <h3>Power vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/3?bgcolor=%23ffffff&color=%2322c55e&dynamic=true&results=60&type=line"></iframe>
-  </div>
-
-  <div class="card">
-    <h3>Energy vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/4?bgcolor=%23ffffff&color=%23f59e0b&dynamic=true&results=60&type=line"></iframe>
+    <h3 style="color:#f59e0b;">Energy vs Time</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/4?bgcolor=%23ffffff&color=%23f59e0b&dynamic=true&results=100&type=line"></iframe>
   </div>
 
   <!-- COMPARISON GRAPH -->
+  <h2>📊 Comparison Graph</h2>
+
   <div class="card">
-    <h3>Comparison: Voltage vs Current vs Power</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%23007acc&dynamic=true&results=60&type=line&yaxis=Voltage&yaxis2=Current,Power&field2=2&field3=3"></iframe>
+    <h3 style="color:#a855f7;">Voltage vs Current vs Power</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%233b82f6&dynamic=true&results=100&type=line&field2=2&field3=3&yaxis=Voltage&yaxis2=Current,Power"></iframe>
   </div>
 
   <footer>
