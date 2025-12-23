@@ -5,8 +5,8 @@
   <title>Smart Energy Consumption Monitor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Auto refresh every 20 seconds -->
-  <meta http-equiv="refresh" content="20">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
@@ -19,7 +19,6 @@
 
     h1 {
       color: #38bdf8;
-      margin-bottom: 5px;
     }
 
     h2 {
@@ -32,22 +31,20 @@
       border-radius: 12px;
       padding: 20px;
       margin: 20px auto;
-      max-width: 800px;
+      max-width: 420px;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
 
     .value {
-      font-size: 2.2rem;
+      font-size: 2rem;
       color: #22c55e;
     }
 
-    iframe {
-      width: 100%;
-      height: 380px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 15px;
-      background: #ffffff;
+    canvas {
+      background: #020617;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 20px;
     }
 
     footer {
@@ -64,78 +61,100 @@
   <p>ESP32 + Sensors + ThingSpeak</p>
 
   <!-- LIVE VALUES -->
-<div class="card">
-  <h2>Live Readings</h2>
-
-  <iframe src="https://thingspeak.com/channels/3211765/widgets/1"></iframe>
-  <iframe src="https://thingspeak.com/channels/3211765/widgets/2"></iframe>
-  <iframe src="https://thingspeak.com/channels/3211765/widgets/3"></iframe>
-  <iframe src="https://thingspeak.com/channels/3211765/widgets/4"></iframe>
-</div>
-
-  <!-- INDIVIDUAL GRAPHS -->
-  <h2>📈 Individual Graphs</h2>
-
   <div class="card">
-    <h3 style="color:#3b82f6;">Voltage vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%233b82f6&dynamic=true&results=100&type=line"></iframe>
+    <h2>Live Readings</h2>
+    <p>Voltage: <span id="voltage" class="value">-- V</span></p>
+    <p>Current: <span id="current" class="value">-- A</span></p>
+    <p>Power: <span id="power" class="value">-- W</span></p>
+    <p>Energy: <span id="energy" class="value">-- Wh</span></p>
   </div>
 
-  <div class="card">
-    <h3 style="color:#ef4444;">Current vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/2?bgcolor=%23ffffff&color=%23ef4444&dynamic=true&results=100&type=line"></iframe>
-  </div>
+  <!-- CHARTS -->
+  <h2>📈 Energy Trends</h2>
 
-  <div class="card">
-    <h3 style="color:#22c55e;">Power vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/3?bgcolor=%23ffffff&color=%2322c55e&dynamic=true&results=100&type=line"></iframe>
-  </div>
-
-  <div class="card">
-    <h3 style="color:#f59e0b;">Energy vs Time</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/4?bgcolor=%23ffffff&color=%23f59e0b&dynamic=true&results=100&type=line"></iframe>
-  </div>
-
-  <!-- COMPARISON GRAPH -->
-  <h2>📊 Comparison Graph</h2>
-
-  <div class="card">
-    <h3 style="color:#a855f7;">Voltage vs Current vs Power</h3>
-    <iframe src="https://thingspeak.com/channels/3211765/charts/1?bgcolor=%23ffffff&color=%233b82f6&dynamic=true&results=100&type=line&field2=2&field3=3&yaxis=Voltage&yaxis2=Current,Power"></iframe>
-  </div>
+  <canvas id="voltageChart"></canvas>
+  <canvas id="currentChart"></canvas>
+  <canvas id="powerChart"></canvas>
 
   <footer>
     Live data from ThingSpeak<br>
-    Updates every 20 seconds
+    Updated every 20 seconds
   </footer>
 
-  <!-- LIVE DATA SCRIPT -->
+  <!-- DATA + CHART SCRIPT -->
   <script>
     const CHANNEL_ID = "3211765";
     const READ_API_KEY = "Z8H1ODMMOLJMF6X0";
 
-    const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
+    const url =
+      https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json +
+      ?api_key=${READ_API_KEY}&results=20;
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("voltage").innerText =
-          (data.field1 ? parseFloat(data.field1).toFixed(2) : "--") + " V";
+    // Charts
+    const voltageChart = new Chart(document.getElementById("voltageChart"), {
+      type: "line",
+      data: { labels: [], datasets: [{ label: "Voltage (V)", data: [], borderColor: "#3b82f6", borderWidth: 2 }] }
+    });
 
-        document.getElementById("current").innerText =
-          (data.field2 ? parseFloat(data.field2).toFixed(3) : "--") + " A";
+    const currentChart = new Chart(document.getElementById("currentChart"), {
+      type: "line",
+      data: { labels: [], datasets: [{ label: "Current (A)", data: [], borderColor: "#ef4444", borderWidth: 2 }] }
+    });
 
-        document.getElementById("power").innerText =
-          (data.field3 ? parseFloat(data.field3).toFixed(2) : "--") + " W";
+    const powerChart = new Chart(document.getElementById("powerChart"), {
+      type: "line",
+      data: { labels: [], datasets: [{ label: "Power (W)", data: [], borderColor: "#22c55e", borderWidth: 2 }] }
+    });
 
-        document.getElementById("energy").innerText =
-          (data.field4 ? parseFloat(data.field4).toFixed(3) : "--") + " Wh";
-      })
-      .catch(error => {
-        console.error("ThingSpeak Fetch Error:", error);
-      });
+    function fetchData() {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const feeds = data.feeds;
+          if (!feeds || feeds.length === 0) return;
+
+          const labels = feeds.map(f =>
+            new Date(f.created_at).toLocaleTimeString()
+          );
+
+          const voltageData = feeds.map(f => Number(f.field1));
+          const currentData = feeds.map(f => Number(f.field2));
+          const powerData   = feeds.map(f => Number(f.field3));
+          const energyData  = feeds.map(f => Number(f.field4));
+
+          // Live values (LATEST)
+          document.getElementById("voltage").innerText =
+            voltageData.at(-1).toFixed(2) + " V";
+
+          document.getElementById("current").innerText =
+            currentData.at(-1).toFixed(3) + " A";
+
+          document.getElementById("power").innerText =
+            powerData.at(-1).toFixed(2) + " W";
+
+          document.getElementById("energy").innerText =
+            energyData.at(-1).toFixed(3) + " Wh";
+
+          // Update charts
+          voltageChart.data.labels = labels;
+          voltageChart.data.datasets[0].data = voltageData;
+          voltageChart.update();
+
+          currentChart.data.labels = labels;
+          currentChart.data.datasets[0].data = currentData;
+          currentChart.update();
+
+          powerChart.data.labels = labels;
+          powerChart.data.datasets[0].data = powerData;
+          powerChart.update();
+        })
+        .catch(err => console.error("ThingSpeak fetch error:", err));
+    }
+
+    // Initial + interval update
+    fetchData();
+    setInterval(fetchData, 20000); // ThingSpeak-safe
   </script>
 
 </body>
 </html>
-
