@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Energy Consumption Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Auto refresh every 20 seconds -->
+  <meta http-equiv="refresh" content="20">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #38bdf8;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px auto;
+      max-width: 350px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    .value {
+      font-size: 2rem;
+      color: #22c55e;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>⚡ Smart Energy Monitor</h1>
+  <p>ESP32 + INA219 + ThingSpeak</p>
+
+  <div class="card">
+    <h2>Voltage</h2>
+    <div id="voltage" class="value">-- V</div>
+  </div>
+
+  <div class="card">
+    <h2>Current</h2>
+    <div id="current" class="value">-- A</div>
+  </div>
+
+  <div class="card">
+    <h2>Power</h2>
+    <div id="power" class="value">-- W</div>
+  </div>
+
+  <div class="card">
+    <h2>Energy</h2>
+    <div id="energy" class="value">-- Wh</div>
+  </div>
+
+  <footer>
+    Live data from ThingSpeak<br>
+    Updated every 20 seconds
+  </footer>
+
+  <script>
+    const CHANNEL_ID = "3211765";
+    const READ_API_KEY = "Z8H1ODMMOLJMF6X0";
+
+    const url = https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY};
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("voltage").innerText =
+          (data.field1 ? parseFloat(data.field1).toFixed(2) : "--") + " V";
+
+        document.getElementById("current").innerText =
+          (data.field2 ? parseFloat(data.field2).toFixed(3) : "--") + " A";
+
+        document.getElementById("power").innerText =
+          (data.field3 ? parseFloat(data.field3).toFixed(2) : "--") + " W";
+
+        document.getElementById("energy").innerText =
+          (data.field4 ? parseFloat(data.field4).toFixed(3) : "--") + " Wh";
+      })
+      .catch(error => {
+        console.error("Error fetching ThingSpeak data:", error);
+      });
+  </script>
+
+</body>
+</html>
