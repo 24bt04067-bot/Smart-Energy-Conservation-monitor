@@ -5,9 +5,6 @@
   <title>Smart Energy Consumption Monitor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Auto refresh every 20 seconds -->
-  <meta http-equiv="refresh" content="20">
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -43,7 +40,7 @@
 
     iframe {
       width: 100%;
-      height: 380px;   /* ENLARGED GRAPH */
+      height: 380px;
       border: none;
       border-radius: 10px;
       margin-top: 15px;
@@ -105,33 +102,42 @@
 
   <footer>
     Live data from ThingSpeak<br>
-    Auto-updated every 20 seconds
+    Numeric values update every 20 seconds
   </footer>
 
+  <!-- LIVE DATA SCRIPT (FIXED) -->
   <script>
     const CHANNEL_ID = "3211765";
     const READ_API_KEY = "Z8H1ODMMOLJMF6X0";
 
-    const url = https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY};
+    function updateLiveData() {
+      const url =
+        https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json +
+        ?api_key=${READ_API_KEY}&_=${Date.now()}; // cache-buster
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("voltage").innerText =
-          (data.field1 ? parseFloat(data.field1).toFixed(2) : "--") + " V";
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("voltage").innerText =
+            (data.field1 ? parseFloat(data.field1).toFixed(2) : "--") + " V";
 
-        document.getElementById("current").innerText =
-          (data.field2 ? parseFloat(data.field2).toFixed(3) : "--") + " A";
+          document.getElementById("current").innerText =
+            (data.field2 ? parseFloat(data.field2).toFixed(3) : "--") + " A";
 
-        document.getElementById("power").innerText =
-          (data.field3 ? parseFloat(data.field3).toFixed(2) : "--") + " W";
+          document.getElementById("power").innerText =
+            (data.field3 ? parseFloat(data.field3).toFixed(2) : "--") + " W";
 
-        document.getElementById("energy").innerText =
-          (data.field4 ? parseFloat(data.field4).toFixed(3) : "--") + " Wh";
-      })
-      .catch(error => {
-        console.error("Error fetching ThingSpeak data:", error);
-      });
+          document.getElementById("energy").innerText =
+            (data.field4 ? parseFloat(data.field4).toFixed(3) : "--") + " Wh";
+        })
+        .catch(err => console.error("Fetch error:", err));
+    }
+
+    // Initial load
+    updateLiveData();
+
+    // Update every 20 seconds (ThingSpeak safe)
+    setInterval(updateLiveData, 20000);
   </script>
 
 </body>
