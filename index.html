@@ -29,18 +29,13 @@
       border-radius: 12px;
       padding: 20px;
       margin: 20px auto;
-      max-width: 800px;
+      max-width: 900px;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-
-    .value {
-      font-size: 2rem;
-      color: #22c55e;
     }
 
     iframe {
       width: 100%;
-      height: 380px;
+      height: 300px;
       border: none;
       border-radius: 10px;
       margin-top: 15px;
@@ -60,17 +55,25 @@
   <h1>⚡ Smart Energy Monitor</h1>
   <p>ESP32 + Sensors + ThingSpeak</p>
 
-  <!-- LIVE VALUES (NO WIDGETS) -->
+  <!-- LIVE READINGS USING CHARTS -->
   <div class="card">
-    <h2>Live Readings</h2>
-    <p>Voltage: <span id="voltage" class="value">-- V</span></p>
-    <p>Current: <span id="current" class="value">-- A</span></p>
-    <p>Power: <span id="power" class="value">-- W</span></p>
-    <p>Energy: <span id="energy" class="value">-- Wh</span></p>
+    <h2>🔴 Live Readings (Last Updated Value)</h2>
+
+    <h3 style="color:#3b82f6;">Voltage (Live)</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/1?dynamic=true&results=1&type=line&title=Voltage"></iframe>
+
+    <h3 style="color:#ef4444;">Current (Live)</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/2?dynamic=true&results=1&type=line&title=Current"></iframe>
+
+    <h3 style="color:#22c55e;">Power (Live)</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/3?dynamic=true&results=1&type=line&title=Power"></iframe>
+
+    <h3 style="color:#f59e0b;">Energy (Live)</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/4?dynamic=true&results=1&type=line&title=Energy"></iframe>
   </div>
 
   <!-- INDIVIDUAL GRAPHS -->
-  <h2>📈 Individual Graphs</h2>
+  <h2>📈 Individual Graphs (Trend Analysis)</h2>
 
   <div class="card">
     <h3 style="color:#3b82f6;">Voltage vs Time</h3>
@@ -92,46 +95,18 @@
     <iframe src="https://thingspeak.com/channels/3211765/charts/4?dynamic=true&results=100&type=line"></iframe>
   </div>
 
+  <!-- COMPARISON GRAPH -->
+  <h2>📊 Comparison Graph</h2>
+
+  <div class="card">
+    <h3 style="color:#a855f7;">Voltage vs Current vs Power</h3>
+    <iframe src="https://thingspeak.com/channels/3211765/charts/1?dynamic=true&results=100&type=line&field2=2&field3=3&yaxis=Voltage&yaxis2=Current,Power"></iframe>
+  </div>
+
   <footer>
-    Live data from ThingSpeak<br>
-    Updates every 20 seconds
+    Live and historical data powered by ThingSpeak<br>
+    Suitable for GitHub Pages hosting
   </footer>
-
-  <!-- FIXED JAVASCRIPT -->
-  <script>
-    const CHANNEL_ID = "3211765";
-    const READ_API_KEY = "Z8H1ODMMOLJMF6X0";
-
-    function updateLiveData() {
-      const url =
-        https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json +
-        ?api_key=${READ_API_KEY}&results=1&_=${Date.now()};
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.feeds || data.feeds.length === 0) return;
-
-          const f = data.feeds[0];
-
-          document.getElementById("voltage").innerText =
-            (f.field1 ? Number(f.field1).toFixed(2) : "--") + " V";
-
-          document.getElementById("current").innerText =
-            (f.field2 ? Number(f.field2).toFixed(3) : "--") + " A";
-
-          document.getElementById("power").innerText =
-            (f.field3 ? Number(f.field3).toFixed(2) : "--") + " W";
-
-          document.getElementById("energy").innerText =
-            (f.field4 ? Number(f.field4).toFixed(3) : "--") + " Wh";
-        })
-        .catch(err => console.error("ThingSpeak fetch error:", err));
-    }
-
-    updateLiveData();
-    setInterval(updateLiveData, 20000);
-  </script>
 
 </body>
 </html>
